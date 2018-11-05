@@ -152,7 +152,12 @@ public:
 		// the centers of the RBFs are the first m_numCenters sample points (use m_funcSamp.m_pos[i] to access them)
 		// hint: Eigen provides a norm() function to compute the l2-norm of a vector (e.g. see macro phi(i,j))
 		double result = 0.0;
+		for (int i = 0; i < m_numCenters; i++) {
+			result += m_coefficents(i)* EvalBasis((m_funcSamp.m_pos[i] - _x).norm());
+		}
 
+		result += m_coefficents(m_numCenters)*_x.x() + m_coefficents(m_numCenters + 1)*_x.y() + m_coefficents(m_numCenters + 2)*_x.z();
+		result += m_coefficents(m_numCenters + 3);
 
 		return result;
 	}
@@ -179,12 +184,16 @@ private:
 		// you can access matrix elements using for example A(i,j) for the i-th row and j-th column
 		// similar you access the elements of the vector b, e.g. b(i) for the i-th element
 
-
-
-
-
-
-
+		for (int i = 0; i < 2 * m_numCenters; i++) {
+			for (int j = 0; j < m_numCenters; j++) {
+				A(i, j) = phi(i, j);
+			}
+			A(i, m_numCenters) = m_funcSamp.m_pos[i].x();
+			A(i, m_numCenters + 1) = m_funcSamp.m_pos[i].y();
+			A(i, m_numCenters + 2) = m_funcSamp.m_pos[i].z();
+			A(i, m_numCenters + 3) = 1;
+			b(i) = m_funcSamp.m_val[i];
+		}
 
 		// build the system matrix and the right hand side of the normal equation
 		m_systemMatrix = A.transpose() * A;
