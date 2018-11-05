@@ -70,7 +70,9 @@ public:
 		Eigen::Vector3f n = m_pointcloud.GetNormals()[idx];
 
 		// TODO: implement the evaluation using Hoppe's method (see lecture slides)
-		return 0.0;
+		Eigen::Vector3f interVector = Eigen::Vector3f(x.x() - p.x(), x.y() - p.y(), x.z() - p.z());
+		double distance = (double)(interVector.dot(n));
+		return distance;
 	}
 
 private:
