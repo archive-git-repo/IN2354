@@ -61,9 +61,9 @@ private:
 		sourcePM << sourceMean;
 		targetPM << targetMean;
 
-		JacobiSVD<Matrix3f> svd(targetPM.transpose().dot(sourcePM), ComputeThinU | ComputeThinV);
+		JacobiSVD<Matrix3f> svd(targetPM.transpose()*sourcePM, ComputeThinU | ComputeThinV);
 		Matrix3f i = Matrix3f::Identity();
-		Matrix3f rotation = svd.matrixU().dot(svd.matrixV().transpose())*i;
+		Matrix3f rotation = svd.matrixU()*svd.matrixV().transpose()*i;
 		return rotation;
 	}
 
