@@ -41,7 +41,7 @@ private:
 			sum3 = sum3 + points[i][2];
 		}
 		mean[0] = sum1 / points.size();
-		mean[2] = sum2 / points.size();
+		mean[1] = sum2 / points.size();
 		mean[2] = sum3 / points.size();
 		return mean;
 	}

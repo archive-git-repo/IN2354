@@ -59,7 +59,15 @@ public:
 			// TODO: Add all matches to the sourcePoints and targetPoints vector, so that
 			//       sourcePoints[i] matches targetPoints[i]. For every source point, the
 			//       'matches' vector holds the index of the matching target point and target normal.
-
+			for (auto i = 0; i < matches.size(); i++)
+			{
+				if (matches[i].idx >= 0)
+				{
+					sourcePoints.push_back(source.getPoints()[matches[i].idx]);
+					targetPoints.push_back(target.getPoints()[matches[i].idx]);
+					targetNormals.push_back(target.getNormals()[matches[i].idx]);
+				}
+			}
 
 
 
@@ -122,7 +130,12 @@ private:
 				const auto& targetNormal = targetNormals[match.idx];
 
 				// TODO: Invalidate the match (set it to -1) if the angle between the normals is greater than 60
-
+				float dotNormal = sourceNormal.dot(targetNormal);
+				float normalAngle = std::acos(dotNormal) * 180. / M_PI;
+				if (normalAngle > 60)
+				{
+					match.idx = -1;
+				}
 			}
 		}
 	}
