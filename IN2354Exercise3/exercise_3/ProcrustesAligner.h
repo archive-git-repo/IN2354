@@ -31,19 +31,11 @@ public:
 private:
 	Vector3f computeMean(const std::vector<Vector3f>& points) {
 		// TODO: Compute the mean of input points.
-
-		Vector3f mean = Vector3f::Random();
-		float sum1, sum2, sum3;
-		for (auto i = 0; i < points.size(); i++)
-		{
-			sum1 = sum1 + points[i][0];
-			sum2 = sum2 + points[i][1];
-			sum3 = sum3 + points[i][2];
+		Vector3f mean = Vector3f::Zero();
+		for (int i = 0; i < points.size(); i++) {
+			mean += points[i];
 		}
-		mean[0] = sum1 / points.size();
-		mean[1] = sum2 / points.size();
-		mean[2] = sum3 / points.size();
-		return mean;
+		return mean/points.size();
 	}
 
 	Matrix3f estimateRotation(const std::vector<Vector3f>& sourcePoints, const Vector3f& sourceMean, const std::vector<Vector3f>& targetPoints, const Vector3f& targetMean) {
@@ -51,30 +43,35 @@ private:
 		// To compute the singular value decomposition you can use JacobiSVD() from Eigen.
 		// Important: The covariance matrices should contain mean-centered source/target points.
 
-		MatrixXd sourcePM(sourcePoints.size()+1, 3);
-		MatrixXd targetPM(targetPoints.size()+1, 3);
-		for (auto i = 0; i < sourcePoints.size(); i++)
-		{
-			sourcePM << sourcePoints[i];
-			targetPM << targetPoints[i];
-		}
-		sourcePM << sourceMean;
-		targetPM << targetMean;
+		MatrixXf x_prime = MatrixXf::Identity(sourcePoints.size(), 3);
+		MatrixXf x = MatrixXf::Identity(targetPoints.size(), 3);
 
-		JacobiSVD<Matrix3f> svd(targetPM.transpose()*sourcePM, ComputeThinU | ComputeThinV);
-		Matrix3f i = Matrix3f::Identity();
-		Matrix3f rotation = svd.matrixU()*svd.matrixV().transpose()*i;
-		return rotation;
+		Vector3f mean_diff = targetMean - sourceMean;
+
+		for (int i = 0; i < sourcePoints.size(); i++) {
+			Vector3f translated_source_point = sourcePoints[i] - targetMean;
+			Vector3f target_point = targetPoints[i] - targetMean;
+
+			x_prime(i, 0) = translated_source_point.x();
+			x_prime(i, 1) = translated_source_point.y();
+			x_prime(i, 2) = translated_source_point.z();
+
+			x(i, 0) = target_point.x();
+			x(i, 1) = target_point.y();
+			x(i, 2) = target_point.z();
+		}
+
+		MatrixXf cross_covariance_matrix = x.transpose() * x_prime;
+
+		JacobiSVD<MatrixXf> svd(cross_covariance_matrix, ComputeThinU | ComputeThinV);
+		
+		Matrix3f rotationMatrix = svd.matrixU()*svd.matrixV().transpose();
+		
+		return rotationMatrix;
 	}
 
 	Vector3f computeTranslation(const Vector3f& sourceMean, const Vector3f& targetMean) {
 		// TODO: Compute the translation vector from source to target points.
-
-		Vector3f translation = Vector3f::Random();
-		for (auto i = 0; i < targetMean.size(); i++)
-		{
-			translation[i]=targetMean[i] - sourceMean[i];
-		}
-		return translation;
+		return targetMean - sourceMean;
 	}
 };
