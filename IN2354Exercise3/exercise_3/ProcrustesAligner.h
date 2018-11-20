@@ -72,7 +72,6 @@ private:
 
 	Vector3f computeTranslation(const Vector3f& sourceMean, const Vector3f& targetMean) {
 		// TODO: Compute the translation vector from source to target points.
-
 		return targetMean - sourceMean;
 	}
 };

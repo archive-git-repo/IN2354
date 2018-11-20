@@ -68,7 +68,7 @@ public:
 				}
 			}
 
-			// Estimate the new pose
+      // Estimate the new pose
  			if (m_bUsePointToPlaneConstraints) {
 				estimatedPose = estimatePosePointToPlane(sourcePoints, targetPoints, targetNormals) * estimatedPose;
 			}
@@ -126,7 +126,6 @@ private:
 				// TODO: Invalidate the match (set it to -1) if the angle between the normals is greater than 60
 				double cos_val = sourceNormal.dot(targetNormal) / (sourceNormal.norm()*targetNormal.norm());
 				if (cos_val < 0.5)  match.idx = -1;
-
 			}
 		}
 	}
@@ -151,7 +150,7 @@ private:
 			const auto& n = targetNormals[i];
 
 			// TODO: Add the point-to-plane constraints to the system
-
+      
 			A(i * 4, 0) = n.z()*s.y() - n.y()*s.z();
 			A(i * 4, 1) = n.x()*s.z() - n.z()*s.x();
 			A(i * 4, 2) = n.y()*s.x() - n.x()*s.y();
@@ -196,8 +195,6 @@ private:
 			A(i * 4 + 3, 5) = 1;
 
 			b(4 * i + 3, 0) = d.z() - s.z();
-
-
 		}
 
 		// TODO: Solve the system
