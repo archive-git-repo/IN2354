@@ -125,8 +125,8 @@ private:
 
 				// TODO: Invalidate the match (set it to -1) if the angle between the normals is greater than 60
 				double cos_val = sourceNormal.dot(targetNormal) / (sourceNormal.norm()*targetNormal.norm());
+				if (cos_val < 0.5)  match.idx = -1;
 
-				if (cos_val < 0.5)  match.weight = -1;
 			}
 		}
 	}
@@ -164,7 +164,7 @@ private:
 
 			// TODO: Add the point-to-point constraints to the system
 
-			// Constraint for z
+			// Constraint for x
 			A(i * 4 + 1, 0) = 0;
 			A(i * 4 + 1, 1) = s.z();
 			A(i * 4 + 1, 2) = -s.y();

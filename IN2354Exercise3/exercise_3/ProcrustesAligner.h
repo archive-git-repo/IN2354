@@ -49,7 +49,7 @@ private:
 		Vector3f mean_diff = targetMean - sourceMean;
 
 		for (int i = 0; i < sourcePoints.size(); i++) {
-			Vector3f translated_source_point = sourcePoints[i] - sourceMean;
+			Vector3f translated_source_point = sourcePoints[i] - targetMean;
 			Vector3f target_point = targetPoints[i] - targetMean;
 
 			x_prime(i, 0) = translated_source_point.x();
