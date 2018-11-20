@@ -61,9 +61,11 @@ public:
 			//       'matches' vector holds the index of the matching target point and target normal.
 
 			for (int i = 0; i < transformedPoints.size(); i++) {
-				sourcePoints[i] = source.getPoints()[i];
-				targetPoints[i] = target.getPoints()[matches[i].idx];
-				targetNormals[i] = target.getNormals()[matches[i].idx];
+				if (matches[i].idx != -1) {
+					sourcePoints.push_back(transformedPoints[i]);
+					targetPoints.push_back(target.getPoints()[matches[i].idx]);
+					targetNormals.push_back(target.getNormals()[matches[i].idx]);
+				}
 			}
 
 			// Estimate the new pose
@@ -122,7 +124,9 @@ private:
 				const auto& targetNormal = targetNormals[match.idx];
 
 				// TODO: Invalidate the match (set it to -1) if the angle between the normals is greater than 60
+				double cos_val = sourceNormal.dot(targetNormal) / (sourceNormal.norm()*targetNormal.norm());
 
+				if (cos_val < 0.5)  match.weight = -1;
 			}
 		}
 	}
@@ -148,15 +152,50 @@ private:
 
 			// TODO: Add the point-to-plane constraints to the system
 
+			A(i * 4, 0) = n.z()*s.y() - n.y()*s.z();
+			A(i * 4, 1) = n.x()*s.z() - n.z()*s.x();
+			A(i * 4, 2) = n.y()*s.x() - n.x()*s.y();
 
+			A(i * 4, 3) = n.x();
+			A(i * 4, 4) = n.y();
+			A(i * 4, 5) = n.z();
 
-
-
+			b(4 * i, 0) = n.x()*d.x() + n.y()*d.y() + n.z()*d.z() - (n.x()*s.x() + n.y()*s.y() + n.z()*s.z());
 
 			// TODO: Add the point-to-point constraints to the system
 
+			// Constraint for z
+			A(i * 4 + 1, 0) = 0;
+			A(i * 4 + 1, 1) = s.z();
+			A(i * 4 + 1, 2) = -s.y();
 
+			A(i * 4 + 1, 3) = 1;
+			A(i * 4 + 1, 4) = 0;
+			A(i * 4 + 1, 5) = 0;
 
+			b(4 * i + 1, 0) = d.x() - s.x();
+
+			// Constraint for y
+			A(i * 4 + 2, 0) = -s.z();
+			A(i * 4 + 2, 1) = 0;
+			A(i * 4 + 2, 2) = s.x();
+
+			A(i * 4 + 2, 3) = 0;
+			A(i * 4 + 2, 4) = 1;
+			A(i * 4 + 2, 5) = 0;
+
+			b(4 * i + 2, 0) = d.y() - s.y();
+
+			// Constraint for z
+			A(i * 4 + 3, 0) = s.y();
+			A(i * 4 + 3, 1) = -s.x();
+			A(i * 4 + 3, 2) = 0;
+
+			A(i * 4 + 3, 3) = 0;
+			A(i * 4 + 3, 4) = 0;
+			A(i * 4 + 3, 5) = 1;
+
+			b(4 * i + 3, 0) = d.z() - s.z();
 
 
 		}
@@ -164,12 +203,8 @@ private:
 		// TODO: Solve the system
 		VectorXf x(6);
 
-
-
-
-
-
-
+		JacobiSVD<MatrixXf> svd(A, ComputeThinU | ComputeThinV);
+		x = svd.solve(b);
 		
 		float alpha = x(0), beta = x(1), gamma = x(2);
 
@@ -182,11 +217,9 @@ private:
 
 		// TODO: Build the pose matrix using the rotation and translation matrices
 		Matrix4f estimatedPose = Matrix4f::Identity();
-
-
-
-
-
+		
+		estimatedPose.block(0, 0, 3, 3) = rotation;
+		estimatedPose.block(0, 3, 3, 1) = translation;
 
 		return estimatedPose;
 	}
