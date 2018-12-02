@@ -8,7 +8,7 @@
 *.sln.docstates
 
 # image from assets folder
-../IN2354Exercise4/exercise_4/assets/
+IN2354Exercise4/exercise_4/assets/
 
 # Mesh Files
 *mesh_*
