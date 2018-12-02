@@ -152,8 +152,9 @@ public:
 
 	void extract_features() {
 		// -> TODO Task 1.2
+		cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create();
 		for (int i = 0; i < N_FRAMES; i++) {
-			continue;
+			detector->detect(rgb[i], keypoints[i]);
 		}
 		// <-
 
@@ -161,8 +162,9 @@ public:
 
 	void describe_features() {
 		// -> TODO Task 1.3
+		cv::Ptr<cv::DescriptorExtractor> descriptor = cv::ORB::create();
 		for (int i = 0; i < N_FRAMES; i++) {
-			continue;
+			descriptor->compute(rgb[i],keypoints[i], descriptors[i]);
 		}
 		// <-
 	}
