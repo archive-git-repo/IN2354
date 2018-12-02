@@ -7,6 +7,9 @@
 *.userosscache
 *.sln.docstates
 
+# image from assets folder
+assets/
+
 # Mesh Files
 *mesh_*
 data/
