@@ -95,10 +95,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>GOOGLE_GLOG_DLL_DECL=;CERES_USING_STATIC_LIBRARY;_DEBUG;_CONSOLE;CERES_MSVC_USE_UNDERSCORE_PREFIXED_BESSEL_FUNCTIONS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libglog_staticd.lib;ceres_staticd.lib;FreeImage.lib;opencv_world400d.lib;%(AdditionalDependencies)</AdditionalDependencies>
