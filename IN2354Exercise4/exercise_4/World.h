@@ -263,19 +263,25 @@ public:
 		int counter = 0;
 		for (int i = 0; i < N_FRAMES; i++) {
 			for (int j = 0; j < N_FRAMES; j++) {
-				std::vector<cv::DMatch> matches_filtered; // = ...
-
+				std::vector<cv::DMatch> matches_filtered = this->matches[make_key(i, j)];
 				for (auto & m : matches_filtered) {
-					cv::Point2i kp0; // = ...
-					cv::Point2i kp1; // = ...
+
+					cv::KeyPoint keyPoint1 = this->keypoints[i][m.queryIdx];
+					cv::KeyPoint keyPoint2 = this->keypoints[j][m.trainIdx];
+
+					cv::Point2i kp0 = keyPoint1.pt;
+					cv::Point2i kp1 = keyPoint2.pt;
 					float d = depth[i].at<float>(kp0.y, kp0.x);
 					if (d == 0)
 						continue;
+					CostFunctor *ref = new CostFunctor(i, j, { kp0.x, kp0.y }, { kp1.x, kp1.y }, d, poses.col(0).data(), &K);
+					ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 2, 6 * 2>(ref);
+					problem.AddResidualBlock(cost_function, NULL, params.data());
+					counter++;
+				}
 					// CostFunctor *ref = new CostFunctor(?, ?, {?, ?}, {?, ?}, d, poses.col(0).data(), &K);
 					// ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, ?, 6*?>(ref);
 					// problem.AddResidualBlock(cost_function, NULL, params.data());
-					counter++;
-				}
 			}
 		}
 		std::cout << "n-residuals: " << counter << std::endl;
