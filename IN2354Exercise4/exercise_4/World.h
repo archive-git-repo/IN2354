@@ -182,10 +182,20 @@ public:
 		matches.resize(descriptors[idx0].rows, { -1, INT_MAX });
 		for (int i = 0; i < descriptors[idx0].rows; i++) {
 			cv::Mat d0 = descriptors[idx0].row(i);
+			int32_t distance = INT32_MAX;
+			int index_match = -1;
 			for (int j = 0; j < descriptors[idx1].rows; j++) {
 				// cv::Mat d1 = ...;
-
+				cv::Mat d1 = descriptors[idx1].row(j);
+				int32_t disHamming = hamming_distance(d0, d1);
+				if (disHamming< distance)
+				{
+					distance = disHamming;
+					index_match = j;
+				}
 			}
+			matches[i].first = index_match;
+			matches[i].second = distance;
 		}
 		// <-
 	}
@@ -194,9 +204,17 @@ public:
 		// -> TODO Task 2.2
 		for (int i = 0; i < (int)matches.size(); i++) {
 			// if (matches[i].second < ...
-
+			if (matches[i].second < 40)
+			{
+				double dist_p2p = cv::norm(keypoints[idx0][i].pt-keypoints[idx1][matches[i].first].pt);
+				if (dist_p2p < 40)
+				{
+					cv::DMatch dMatch(i, matches[i].first, matches[i].second);
+					filtered.push_back(dMatch);
+				}
+			}
 			// double dist_p2p = ...
-			// if (dist_p2p < ...
+			// if (dist_p2p < ...			
 		}
 		// <-
 	}
@@ -246,6 +264,7 @@ public:
 		for (int i = 0; i < N_FRAMES; i++) {
 			for (int j = 0; j < N_FRAMES; j++) {
 				std::vector<cv::DMatch> matches_filtered; // = ...
+
 				for (auto & m : matches_filtered) {
 					cv::Point2i kp0; // = ...
 					cv::Point2i kp1; // = ...
